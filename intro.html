@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ch">
+
+<head>
+	<meta charset="UTF-8">
+	<title>效果展示与源代码 -CCPIRA平滑函数及应用库</title>
+	<link href="prism.css" rel="stylesheet" />
+	<script src="ccpirahead.js"></script>
+	<script src="prism.js"></script>
+	<script src="crf.js"></script>
+	<style>
+		html, body {
+			height: 100%;
+		}
+	
+		#menu div {
+			display: inline-block;
+			padding: 0.1cm;
+			width: 80%;
+			margin: 0.1cm;
+			position: relative;
+			left: -20px;
+		}
+	
+		[name="sel"] {
+			background: #fff;
+		}
+	
+		[name="sel"]:hover {
+			background: #eee;
+		}
+	
+		[name="ced"] {
+			background: orange;
+		}
+	
+		* {
+			padding: 0;
+			margin: 0;
+			overflow: none;
+		}
+	
+		[name="bl"] {
+			overflow: auto;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 20%;
+			bottom: 0;
+			margin: 2%;
+			margin-right: 1%;
+			transform: translateX(-1000%);
+			background: rgba(255, 255, 255, 0.6);
+		}
+	
+		[name="cbl"] {
+			display: inline-block;
+			background: rgba(255, 255, 255, 0.6);
+			margin: 0.1cm;
+			height: 2.5cm;
+			padding: 0.5cm;
+		}
+	
+		#pr {
+			display: block;
+			line-height: 1.1em;
+			white-space: pre;
+			padding: 10px;
+			font-size: 0.8em;
+			transform: translateX(0);
+		}
+	
+		#menu {
+			position: absolute;
+			background: rgba(255, 255, 255, 0.6);
+			top: 0;
+			left: 80%;
+			right: 0;
+			bottom: 0;
+			margin: 2%;
+			margin-left: 1%;
+			padding: 10px;
+		}
+	</style>
+	<script type="text/javascript">
+		function $(n) { return document.getElementsByName(n); }
+		function yc(n) {
+			var ns = $("bl");
+			for (var i = 0; i < ns.length; i++) { ns[i].style.transform = "translateX(-1000%)"; }
+			$("ced")[0].setAttribute("name", "sel");
+			$("sel")[n].setAttribute("name", "ced");
+			if (n == 0) { return 0; }
+			ns[n - 1].style.transform = "translateX(0)";
+		}
+		function zj(n) {
+			var h, i, k, s=document.createElement("div"), c=document.createElement("select");
+			s.setAttribute("name", "cbl");
+			$("bl")[1].appendChild(s);
+			s.no=$("cbl").length-1;
+			switch(n) {
+				case 0:
+					s.changer=new CrfChanger;
+					k=0;
+					i="<option value=0>开始</option><option value=1>停止</option><option value=2>重启</option><option value=3>重设</option>";
+					h=0;
+					break;
+				case 1:
+					change_eec(s);
+					k="&nbsp;";
+					i="<option value=4>开始</option><option value=5>停止</option><option value=6>重启</option><option value=7>重设</option>";
+					h=4;
+					break;
+				case 2:
+					change_eeg(s);
+					k="&nbsp;";
+					i="<option value=4>开始</option><option value=5>停止</option><option value=6>重启</option><option value=7>重设</option>";
+					h=4;
+					for(var l=0; l<3; l++) {
+						s.crfColor.changer[1][l].min = 200;
+						s.crfColor.changer[2][l].max = 55;
+					}
+					break;
+			}
+			s.innerHTML="<h1 name=\"con\">"+k+"</h1>";
+			c.innerHTML=i;
+			c.setAttribute("onchange", "$(\"but\")["+s.no+"].v=parseInt(this.value)");
+			s.appendChild(c);
+			s.innerHTML+="<button onclick=\"czcr("+s.no+", this.v)\" name=\"but\">运行指令</button>";
+			$("but")[s.no].v=h;
+		}
+		function jc() {
+			if($("cbl").length == 0) return;
+			$("bl")[1].removeChild($("cbl")[$("cbl").length-1]);
+		}
+		function czcr(n, h) {
+			var s=$("cbl")[n];
+			switch(h) {
+				case 0:
+					s.changer.start();
+					s.timer=setInterval(function() {$("con")[n].innerText=$("cbl")[n].changer.value}, 20);
+					break;
+				case 1:
+					s.changer.stop();
+					window.clearInterval($("cbl")[n].timer);
+					break;
+				case 2:
+					window.clearInterval($("cbl")[n].timer);
+					s.changer.restart();
+					s.timer=setInterval(function() {$("con")[n].innerText=$("cbl")[n].changer.value}, 20);
+					break;
+				case 3:
+					window.clearInterval($("cbl")[n].timer);
+					$("con")[n].innerText=0;
+					s.changer.reset();
+					break;
+				case 4:;
+					s.crfColor.start();
+					//s.timer=setInterval(function() {$("con")[n].innerText=$("cbl")[n].crfColor.cs}, 20);
+					break;
+				case 5:
+					s.crfColor.stop();
+					break;
+				case 6:
+					s.crfColor.restart();
+					break;
+				case 7:
+					s.crfColor.reset();
+					break;
+			}
+		}
+		function ready() {
+			try {
+				change_eeg(document.body);
+				change_ccstart(document.body);
+			} catch (e) {
+				document.write(e.message);
+			}
+		}
+	</script>
+</head>
+
+<body>
+	<code id="pr" class="language-javascript" name="bl"></code>
+	<div name="bl">
+		<button onclick="zj(parseInt(bhqx.value))">增加变幻器</button>
+		<select id="bhqx" value=0>
+			<option value=0>数字</option>
+			<option value=1>平滑变色</option>
+			<option value=2>平滑渐变色</option>
+		</select>
+		<button onclick="jc()">减少变幻器</button><br />
+	</div>
+	<div id="menu">
+		<h2>预览选项</h2><br />
+		<div onclick="yc(0)" name="sel">背景</div>
+		<div onclick="yc(1)" name="ced">源代码</div>
+		<div onclick="yc(2)" name="sel">变幻器</div>
+	</div>
+</body>
+
+</html>
