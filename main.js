@@ -61,13 +61,13 @@
 	ChangeRF.randCR = randCR;
 
 	function crf(l, params) {
-		if (!l) return [0];
-		params = hdlParams(params)
+		if (!(l = parseFloat(l))) return [0];
+		params = hdlParams(params);
 		var s = l,
-			xz = params.type || randCZ(1, 3),
+			xz = parseInt(params.type) || randCZ(1, 3),
 			i = s < 0 ? -params.slope : params.slope,
 			m = params.multi,
-			x = -1,
+			x = 0,
 			bz = [];
 		switch (xz) {
 			case 1: {
@@ -75,8 +75,8 @@
 					t = randCR(s * n / i, s * n * i),
 					l = t * m,
 					k = (Math.pow(2, n - 1) * s) / Math.pow(l, n);
-				while (++x < l / 2) bz.push(k * Math.pow(x, n));
-				while (++x < l) bz.push((0 - k) * Math.pow(Math.abs(x - l), n) + s);
+				while (x < l / 2) bz.push(k * Math.pow(x, n)), x++;
+				while (x < l) bz.push((0 - k) * Math.pow(Math.abs(x - l), n) + s), x++;
 			} break;
 			case 2: {
 				m *= params.tctrl ? 0.89 : 1;
@@ -86,8 +86,8 @@
 					k2 = s - k1,
 					r = m * m * k1 * k1,
 					l = t * m;
-				while (++x < l / 2) bz.push(k1 - ((s > 0 ? 1 : -1) * (Math.sqrt(r - x * x) / m)));
-				while (++x < l) bz.push((s > 0 ? 1 : -1) * (Math.sqrt(r - Math.pow((x - l), 2)) / m) + k2);
+				while (x < l / 2) bz.push(k1 - ((s > 0 ? 1 : -1) * (Math.sqrt(r - x * x) / m))), x++;
+				while (x < l) bz.push((s > 0 ? 1 : -1) * (Math.sqrt(r - Math.pow((x - l), 2)) / m) + k2), x++;
 			} break;
 			case 3: {
 				m *= params.tctrl ? 1.4 : 1;
@@ -95,12 +95,12 @@
 					l = t * m,
 					k1 = s / 2,
 					k2 = Math.PI / l;
-				while (++x < l) bz[x] = -k1 * Math.cos(k2 * x) + k1;
+				while (x < l) bz[x] = -k1 * Math.cos(k2 * x) + k1, x++;
 			} break;
 		}
-		if (params.round) for (i = x - 1; i >= 0; --i) bz[i] = Math.round(bz[i]);
+		if (params.round) for (i = x; i >= 0; --i) bz[i] = Math.round(bz[i]);
 		bz[0] = 0;
-		bz[x - 1] = s;
+		bz[x] = s;
 		return bz;
 	}
 	ChangeRF.crf = crf;
