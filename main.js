@@ -1,120 +1,118 @@
-/**crf.js基类 */
-function CrfBaseClass(init) {
-	for (var i in init) this[i] = init[i];
-	this.proto = this;
-}
-CrfBaseClass.prototype = {
-	/**原型 */
-	proto: null,
-	/**
-	 * 更改默认配置
-	 * @param {string|object} name 要更改的配置名称或配置键值对
-	 * @param {any} value 更改后的值
-	 */
-	config: function (name, value) {
-		if (typeof name == "string") this.proto[name] = value;
-		else for (var i in name) this.proto[i] = name[i];
+'use strict';
+(function (ChangeRF) {
+
+	function BaseClass(n) {
+		for (var i in n) this[i] = n[i];
+		this.proto = this;
 	}
-};
-/**曲线参数类 */
-function CrfCurveParams(init) {
-	if (typeof init == "object") {
-		var obj = {
-			type: parseInt,
-			slope: parseFloat,
-			multi: parseFloat,
-			minn: parseFloat,
-			maxn: parseFloat,
-			round: Boolean,
-			tctrl: Boolean
-		};
-		for (var i in obj) if (typeof init[i] != "undefined") this[i] = obj[i](init[i]);
+	BaseClass.prototype = {
+		proto: null,
+		config: function (name, value) {
+			if (typeof name === "object") for (var i in name) this.proto[i] = name[i];
+			else this.proto[name] = value;
+		}
+	};
+	ChangeRF.BaseClass = BaseClass;
+
+	function CurveParams(n) {
+		for (var i in n) this[i] = n[i];
 	}
-}
-CrfCurveParams.prototype = new CrfBaseClass({
-	/**曲线种类。0~3分别对应随机、多次函数、椭圆函数、三角函数
-	 * @type {0|1|2|3} */
-	type: 0,
-	/**曲线最大/最小斜率
-	 * @type {number} */
-	slope: 2.0,
-	/**曲线减速倍数
-	 * @type {number} */
-	multi: 1.0,
-	/**曲线最大变形程度
-	 * @type {number} */
-	minn: 2.6,
-	/**曲线最小变形程度
-	 * @type {number} */
-	maxn: 1.8,
-	/**是否对结果四舍五入
-	 * @type {boolean} */
-	round: false,
-	/**是否为了使数组长度相近而拉伸图形
-	 * @type {boolean} */
-	tctrl: false
-});
-/**
- * 处理曲线参数
- * @param {any} n 要处理的参数
- * @returns {CrfCurveParams} 处理后的参数
- */
-function crf_hdlParams(n) {
-	return n instanceof CrfCurveParams ? n : new CrfCurveParams(n);
-}
-/**
- * 生成一个平滑的函数
- * @param {number} l 移动的距离
- * @param {CrfCurveParams} params 生成参数
- * @returns {array} x为整数时函数取到的y值
- */
-function change_rf(l, params) {
-	var s = parseFloat(l), xz, i, m, minn, maxn, ifr, ctr, x = 0, bz = [], params = crf_hdlParams(params);
-	xz = params.type;
-	i = params.slope;
-	m = params.multi;
-	minn = params.minn;
-	maxn = params.maxn;
-	ifr = params.round;
-	ctr = params.tctrl;
-	if (xz == 0) xz = 1 + Math.floor(Math.random() * 3);
-	if (s < 0) i = - i;
-	else if (s == 0) return [0];
-	switch (xz) {
-		case 1:
-			var n = change_frand(minn, maxn), t = change_frand(s * n / i, s * n * i), l = t * m, k = (Math.pow(2, n - 1) * s) / Math.pow(l, n);
-			while (x < l / 2) bz[x] = k * Math.pow(x, n), x++;
-			while (x < l) bz[x] = (0 - k) * Math.pow(Math.abs(x - l), n) + s, x++;
-			break;
-		case 2:
-			m *= ctr ? 0.89 : 1;
-			var t = change_frand(s / i + Math.abs(s) * Math.sqrt(1 / (i * i) + 1), s * i + Math.abs(s) * Math.sqrt(i * i + 1)), k1 = (s * s + t * t) / (4 * s), k2 = s - k1, r = m * m * k1 * k1, l = t * m;
-			while (x < l / 2) bz[x] = k1 - ((s > 0 ? 1 : -1) * (Math.sqrt(r - x * x) / m)), x++;
-			while (x < l) bz[x] = (s > 0 ? 1 : -1) * (Math.sqrt(r - Math.pow((x - l), 2)) / m) + k2, x++;
-			break;
-		case 3:
-			m *= ctr ? 1.4 : 1;
-			var t = change_frand(Math.PI * s / 2 / i, Math.PI * s * i / 2), l = t * m, k1 = s / 2, k2 = Math.PI / l;
-			while (x < l) bz[x] = -k1 * Math.cos(k2 * x) + k1, x++;
-			break;
+	CurveParams.prototype = new BaseClass({
+		type: 0,
+		slope: 2.0,
+		multi: 1.0,
+		minn: 2.6,
+		maxn: 1.8,
+		round: false,
+		tctrl: false
+	});
+	ChangeRF.CurveParams = CurveParams;
+
+	function hdlParams(n) {
+		return n && n.proto === CurveParams.prototype ? n : new CurveParams(n);
 	}
-	if (ifr) for (i = 0; i < bz.length; i++) bz[i] = Math.round(bz[i]);
-	bz[0] = 0;
-	bz[x] = s;
-	return bz;
-}
-/**
- * 更简单，更优雅地生成一个平滑的函数
- * @param {number} from 函数起始的值
- * @param {number} to 函数结束的位置
- * @param {CrfCurveParams} params 生成参数
- * @returns {array} x为整数时函数取到的y值
- */
-function change_tf(from, to, params) {
-	var params = crf_hdlParams(params), from = params.round ? Math.round(from) : from, rslt = change_rf(to - from, params), i;
-	for (i = rslt.length - 1; i >= 0; i--) rslt[i] += from;
-	return rslt;
-}
+	ChangeRF.hdlParams = hdlParams;
+
+	function randL(min, fmax) {
+		return Math.floor(Math.random() * (fmax - min)) + min;
+	}
+	ChangeRF.randL = randL;
+
+	function randCZ(min, max) {
+		return randL(min, max + 1);
+	}
+	ChangeRF.randCZ = randCZ;
+
+	function randCR(min, max) {
+		var g0, f, i, k;
+		min = randCR.deDot(String(min)), g0 = randCR.g1;
+		max = randCR.deDot(String(max)), f = randCR.g1 > g0 ? randCR.g1 : g0;
+		f > randCR.minDigit || (f = randCR.minDigit);
+		for (i = f - g0; i > 0; --i) min *= 10;
+		for (i = f - randCR.g1; i > 0; --i) max *= 10;
+		return (k = String(randCZ(min, max)).split('')).splice(-f, 0, '.'), parseFloat(k.join(''));
+	}
+	randCR.deDot = function (s) {
+		(randCR.g1 = s.indexOf('.') + 1) && (randCR.g1 = s.length - randCR.g1);
+		(s = s.split('')).splice(-randCR.g1 - 1, randCR.g1 !== 0);
+		return parseInt(s.join(''));
+	};
+	randCR.minDigit = 6;
+	ChangeRF.randCR = randCR;
+
+	function crf(l, params) {
+		if (!l) return [0];
+		params = hdlParams(params)
+		var s = l,
+			xz = params.type || randCZ(1, 3),
+			i = s < 0 ? -params.slope : params.slope,
+			m = params.multi,
+			x = -1,
+			bz = [];
+		switch (xz) {
+			case 1: {
+				var n = randCR(params.minn, params.maxn),
+					t = randCR(s * n / i, s * n * i),
+					l = t * m,
+					k = (Math.pow(2, n - 1) * s) / Math.pow(l, n);
+				while (++x < l / 2) bz.push(k * Math.pow(x, n));
+				while (++x < l) bz.push((0 - k) * Math.pow(Math.abs(x - l), n) + s);
+			} break;
+			case 2: {
+				m *= params.tctrl ? 0.89 : 1;
+				var t = randCR(s / i + Math.abs(s) * Math.sqrt(1 / (i * i) + 1),
+					s * i + Math.abs(s) * Math.sqrt(i * i + 1)),
+					k1 = (s * s + t * t) / (4 * s),
+					k2 = s - k1,
+					r = m * m * k1 * k1,
+					l = t * m;
+				while (++x < l / 2) bz.push(k1 - ((s > 0 ? 1 : -1) * (Math.sqrt(r - x * x) / m)));
+				while (++x < l) bz.push((s > 0 ? 1 : -1) * (Math.sqrt(r - Math.pow((x - l), 2)) / m) + k2);
+			} break;
+			case 3: {
+				m *= params.tctrl ? 1.4 : 1;
+				var t = randCR(Math.PI * s / 2 / i, Math.PI * s * i / 2),
+					l = t * m,
+					k1 = s / 2,
+					k2 = Math.PI / l;
+				while (++x < l) bz[x] = -k1 * Math.cos(k2 * x) + k1;
+			} break;
+		}
+		if (params.round) for (i = x - 1; i >= 0; --i) bz[i] = Math.round(bz[i]);
+		bz[0] = 0;
+		bz[x - 1] = s;
+		return bz;
+	}
+	ChangeRF.crf = crf;
+
+	function ctf(from, to, params) {
+		var params = hdlParams(params), from = params.round ? Math.round(from) : from, rslt = crf(to - from, params), i;
+		for (i = rslt.length - 1; i >= 0; --i) rslt[i] += from;
+		return rslt;
+	}
+
+})(typeof exports === 'undefined' ? window.ChangeRF = {} : exports['default'] = exports.ChangeRF = {});
+(function () {
 /*
 	下方这些全局变量是平滑变幻器（CrfChanger）默认的属性，对于声明时没有额外提供的属性，将会在声明时使用这些变量的值。
 	若希望在声明前大规模的改变属性，可以尝试在网页的脚本中更改以下全局变量，作为平滑变幻器的默认属性。
@@ -248,18 +246,18 @@ CrfChanger.prototype = new CrfBaseClass({
 				max = Math.min(n.value + acv, n.max),
 				d = String(max - min - 2 * n.icv),
 				mb = n._c[3] == 2
-					? change_frand(n.min, n.max)
+					? randCR(n.min, n.max)
 					: n.iwr
 						? n.value
-							+ (Math.floor(Math.random() * 2) * 2 - 1)
-								* (n.icv + change_frand(0, acv - n.icv))
+						+ (Math.floor(Math.random() * 2) * 2 - 1)
+						* (n.icv + randCR(0, acv - n.icv))
 						: (
 							f = (n.value + n.icv > n.max ? 1 : 0) + (n.value - n.icv < n.min ? 2 : 0)
 								? (--f)
 									? (--f)
-										? change_frand(n.min, n.max)
-										: change_frand(n.value + n.icv, max)
-									: change_frand(min, n.value - n.icv)
+										? randCR(n.min, n.max)
+										: randCR(n.value + n.icv, max)
+									: randCR(min, n.value - n.icv)
 								: (
 									(
 										(
@@ -289,7 +287,7 @@ CrfChanger.prototype = new CrfBaseClass({
 										)
 								)
 						);
-			n._c[2] = change_tf(mb, n.value, n.fgp);
+			n._c[2] = ctf(mb, n.value, n.fgp);
 		}
 	},
 	start: function () {
@@ -298,7 +296,7 @@ CrfChanger.prototype = new CrfBaseClass({
 			if (typeof n._c[4].max == "undefined") n._c[4].max = n.max;
 			if (typeof n._c[4].min == "undefined") n._c[4].min = n.min;
 			if (typeof n.value == "undefined") {
-				n.value = change_frand(n.min, n.max);
+				n.value = randCR(n.min, n.max);
 				n.f[1](n);
 				var k = Math.floor(Math.random() * n._c[2].length);
 				n._c[2].splice(-k, k);
@@ -748,33 +746,6 @@ function change_ccstop() {
 	return 0;
 }
 /*
-函数change_frand()：
-	功能简介：
-		获取介于两个实数间的随机数。
-	参数：
-		1.必需。一个实数（float），表示最小值。
-		2.必需。一个实数（float），表示最大值。
-	返回值：
-		一个实数（float），就是介于给的两个实数间的随机数。
-*/
-function change_frand(_x, _d) {
-	var x = String(_x), d = String(_d), s = [0, 0], sf = 0, i;
-	for (i = 0; i < x.length; i++) {
-		if (sf) s[0]++;
-		if (x[i] == '.') sf = 1;
-	}
-	sf = 0;
-	for (i = 0; i < d.length; i++) {
-		if (sf) s[1]++;
-		if (d[i] == '.') sf = 1;
-	}
-	s = s[1] > s[0] ? s[1] : s[0];
-	s = s > 5 ? s : 5;
-	x = x * Math.pow(10, s);
-	d = d * Math.pow(10, s);
-	return Math.floor(Math.random() * (d - x + 1) + x) * Math.pow(10, -s);
-}
-/*
 函数change_sjwz()：
 	功能简介：
 		获取各种类型的随机数。
@@ -793,8 +764,9 @@ function change_sjwz() {
 		case 0:
 			return Math.floor(Math.random() * 256);
 		case 1:
-			return arguments[1] + change_frand(-arguments[2] * 360, arguments[2] * 360);
+			return arguments[1] + randCR(-arguments[2] * 360, arguments[2] * 360);
 		case 2:
-			return change_frand(0, 100);
+			return randCR(0, 100);
 	}
 }
+})
