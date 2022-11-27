@@ -1,14 +1,24 @@
 export namespace ChangeRF {
 
 	/**基类 */
-	class BaseClass<T = {}> {
-		constructor(n?: Omit<Partial<T>, keyof BaseClass>)
+	class BaseClass<T extends BaseClass<any> | null = null> {
+		constructor(n?: T extends BaseClass<null> ? T : BaseClassLike<T>)
+		/**批量修改对象属性 */
+		static attr<N>(obj: N, n?: BaseClassLike<N>): void
+		/**修改单个对象属性 */
+		static attr<N, K extends keyof BaseClassLike<N>>(obj: N, key: K, value: N[K]): void
+		/**批量修改属性 */
+		attr(n?: BaseClassLike<T>): void
+		/**修改单个属性 */
+		attr<K extends keyof BaseClassLike<T>>(key: K, value: T[K]): void
+		/**批量修改原型属性 */
+		attrProto(n?: BaseClassLike<T>): void
+		/**修改单个原型属性 */
+		attrProto<K extends keyof BaseClassLike<T>>(key: K, value: T[K]): void
 		/**基类的子类原型 */
 		proto: T
-		/**批量修改原型属性 */
-		config(name?: Omit<Partial<T>, keyof BaseClass>): void
-		/**修改原型单个属性 */
-		config<K extends keyof Omit<T, keyof BaseClass>>(name: K, value: T[K]): void
+		/**属性处理函数 */
+		parser: { [K in keyof BaseClassLike<T>]?: (n: any) => T[K] }
 	}
 
 	/**类似基类的子类的对象 */
@@ -16,6 +26,12 @@ export namespace ChangeRF {
 
 	/**曲线参数类 */
 	class CurveParams extends BaseClass<CurveParams> {
+		/**批量修改原型属性 */
+		static attr(n?: CurveParamsLike): void
+		/**修改单个原型属性 */
+		static attr<K extends keyof CurveParamsLike>(key: K, value: CurveParams[K]): void
+		/**处理曲线参数 */
+		static parse(n?: CurveParamsLike): CurveParams
 		/**曲线种类。0~3分别对应随机、多次函数、椭圆函数、三角函数 */
 		type: 0 | 1 | 2 | 3
 		/**曲线最大/最小斜率 */
@@ -36,38 +52,17 @@ export namespace ChangeRF {
 	type CurveParamsLike = BaseClassLike<CurveParams>;
 
 	/**随机生成一个位于 [min, fmax) 的整数或实数 */
-	function randL(
-		/**最小的可能的值 */
-		min: number,
-		/**最大不超过的值 */
-		fmax: number,
-	): number
+	function randL(min: number, fmax: number): number
 
 	/**随机生成一个位于 [min, max] 的整数 */
-	function randCZ(
-		/**最小的可能的值 */
-		min: number,
-		/**最大的可能的值 */
-		max: number,
-	): number
+	function randCZ(min: number, max: number): number
 
 	/**随机生成一个位于 [min, max] 的实数 */
-	function randCR(
-		/**最小的可能的值 */
-		min: number,
-		/**最大的可能的值 */
-		max: number,
-	): number
+	function randCR(min: number, max: number): number
 	namespace randCR {
 		/**最浅小数位 用以防止生成整数的情况发生 */
 		let minDigit: number
 	}
-
-	/**处理曲线参数 */
-	function hdlParams(
-		/**原始手工曲线参数 */
-		n?: CurveParamsLike,
-	): CurveParams
 
 	/**生成一个平滑的函数 */
 	function crf(
