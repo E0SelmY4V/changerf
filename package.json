@@ -1,0 +1,33 @@
+{
+	"name": "changerf",
+	"version": "0.9.0",
+	"description": "Dynamic gradient color achieved by JS",
+	"main": "build/main.js",
+	"scripts": {
+		"build": "webpack"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/E0SelmY4V/changerf.git"
+	},
+	"keywords": [
+		"color-palette",
+		"color-gradient",
+		"palette",
+		"color-picker",
+		"color-generator",
+		"color-wavelengths"
+	],
+	"author": "e0selmy4v",
+	"license": "GPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/E0SelmY4V/changerf/issues"
+	},
+	"homepage": "https://github.com/E0SelmY4V/changerf#readme",
+	"dependencies": {
+		"jexpt": "^1.2.3"
+	},
+	"devDependencies": {
+		"webpack": ""
+	}
+}
