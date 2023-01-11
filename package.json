@@ -24,10 +24,8 @@
 		"url": "https://github.com/E0SelmY4V/changerf/issues"
 	},
 	"homepage": "https://github.com/E0SelmY4V/changerf#readme",
-	"dependencies": {
-		"jexpt": "^1.2.3"
-	},
 	"devDependencies": {
+		"jexpt": "^1.2.3",
 		"webpack": ""
 	}
 }
