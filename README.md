@@ -25,6 +25,20 @@
 
 - 虽然『高级平滑渐变色』的名字里带着“渐变色”，但是本项目不止可用于渐变色。
 
+## 安装
+
+你可以通过直接 clone 本项目来使用
+
+```bash
+git clone https://github.com/E0SelmY4V/changerf.git
+```
+
+也可以选择使用 npm 等包管理器安装本项目
+
+```bash
+npm i changerf
+```
+
 ## 引入
 
 ### CommonJS
