@@ -5,5 +5,6 @@ module.exports = {
 	target: ['web', 'es3'],
 	output: {
 		path: __dirname + '/build',
+		filename: 'temp.js',
 	},
 }
