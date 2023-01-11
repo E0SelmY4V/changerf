@@ -4,7 +4,7 @@
 	"description": "Dynamic gradient color achieved by JS",
 	"main": "build/main.js",
 	"scripts": {
-		"build": "webpack"
+		"build": "node ./build.js"
 	},
 	"repository": {
 		"type": "git",
