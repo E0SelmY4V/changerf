@@ -1,4 +1,4 @@
-import BaseClass from './BaseClass'
+import BaseClass = require('./BaseClass')
 import { CurveParamsLike } from "./types"
 export = CurveParams
 

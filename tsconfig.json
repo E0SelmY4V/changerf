@@ -1,5 +1,12 @@
 {
 	"compilerOptions": {
+		"strict": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"strictPropertyInitialization": true,
+		"alwaysStrict": true,
+		"declaration": true,
 		"esModuleInterop": true,
 	},
 }

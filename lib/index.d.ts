@@ -1,7 +1,14 @@
-import BaseClass from "./baseclass"
-import CurveParams from "./CurveParams"
+/**
+ * 『高级平滑渐变色』函数库
+ * @version 0.9.0
+ */
+declare module "."
+import BaseClass = require("./baseclass")
+import CurveParams = require("./CurveParams")
 export { BaseClass, CurveParams }
-// export * from './types'
+export * from './types'
+export * from './crf'
+export * from './rand'
 // export namespace ChangeRF {
 
 // 	/**平滑变幻器对象 */

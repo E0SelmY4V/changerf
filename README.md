@@ -61,13 +61,18 @@ import ChangeRF from 'changerf';
 
 ### 浏览器
 
-如果你直接在浏览器里写脚本：
+如果你直接在浏览器里写脚本，需要先在 HTML 里引入本项目
 
 ```html
-<script src="build/main.js"></script>
-<script>
-  console.log(window.ChangeRF || ChangeRF);
-</script>
+<script src="changerf/build/main.js"></script>
+```
+
+为了开发方便，你可以再使用三斜杠注释，在你的脚本文件里引入本项目的定义
+
+```js
+/// <reference path="changerf/build/global.d.ts" />
+
+console.log(ChangeRF);
 ```
 
 ## 示例
