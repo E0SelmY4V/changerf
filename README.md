@@ -27,13 +27,13 @@
 
 ## 安装
 
-你可以通过直接 clone 本项目来使用
+### 通过网站下载
 
-```bash
-git clone https://github.com/E0SelmY4V/changerf.git
-```
+你可以通过直接下载 [GitHub 上的发行包](https://github.com/E0SelmY4V/changerf/releases) 来安装。
 
-也可以选择使用 npm 等包管理器安装本项目
+### 通过 npm 下载
+
+你也可以选择使用 npm 等包管理器安装本项目。
 
 ```bash
 npm i changerf
@@ -91,11 +91,3 @@ console.log(curve); // 输出以便欣赏数组
 ## 使用感受
 
 - 看起来挺炫酷。
-
-## 关于文档
-
-本项目无文档，但是本项目代码有注释。
-
-注释不清楚的可以 [邮箱](yabo1887415157@qq.com) 联系我。
-
-想免费给我写文档也可 [邮箱](yabo1887415157@qq.com) 联系我。或者有不要的钱送给我也可以。
